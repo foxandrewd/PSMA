@@ -22,7 +22,7 @@ library(nlme)
 source("wbcInference.R")
 
 load("metaDataMSmethyl.RData")    ## metadata
-cellPropsFACS = read.csv("CellPropsFACS.txt", header=F, sep="\t")
+cellPropsFACS = read.csv("CellPropsFACS.txt", sep="\t")
 BetaVal = read.table( "methylation_beta_values_001.txt", header = T, sep = '\t', quote='' )
 
 NUM_COLUMNS = 9
