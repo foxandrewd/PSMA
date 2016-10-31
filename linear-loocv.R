@@ -16,7 +16,7 @@
 m2b <- function(m){ return( 2^m/(1+2^m)  ) }	# Turn methylation M values to beta values
 b2m <- function(b){ return( log2(b/(1-b)) ) }	# Turn methylation beta values to M values
 
-props_expt = read.csv("CellPropsFACS.txt", sep="\t", head=F)
+props_expt = read.csv("CellPropsFACS.txt", sep="\t")
 BetaVal = read.table( "methylation_beta_values_001.txt", header = T, sep = '\t', quote='' )
 BetaVal = as.matrix( BetaVal )
 colnames(BetaVal) <- substr(colnames(BetaVal), start = 2 , stop = length(colnames(BetaVal)) )
