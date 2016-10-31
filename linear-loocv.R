@@ -107,7 +107,7 @@ for( CTSes_i in  CTSes_ALL  ) {
 	res_pred2 = cbind( res_pred2,  results$LOO_pred2 )
 
 }
-colnames(res_pred) = c("NT", "T4", "T8", "NK", "BC", "MO")
+colnames(res_pred) = c('Neut', 'CD4T', 'CD8T', 'NKcell', 'Bcell', 'Mono')
 rownames(res_pred) = colnames(Mv)[i_wb][1:dim(props_expt)[1]]
 
 res_pred
