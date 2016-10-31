@@ -18,3 +18,7 @@ DNA methylation data
 This file implements the Houseman deconvolution method for prediction of cellular proportions of
 Neutrophils, CD4+ T cells, CD8+ T cells, NK cells, B cells and Monocytes from whole-blood DNA 
 methylation data 
+
+### cellPropsFACS.txt
+This file contains the FACS-determined, experimentally measured proportions of Neutrophils,
+CD4+ T cells, CD8+ T cells, NK cells, B cells and Monocytes in the first 8 control samples
