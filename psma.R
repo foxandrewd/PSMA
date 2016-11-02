@@ -12,20 +12,18 @@
 #### See the License for the specific language governing permissions and
 #### limitations under the License.
 #### 
-
 m2b <- function(m){ return( 2^m/(1+2^m)  ) }	# Turn methylation M values to beta values
 b2m <- function(b){ return( log2(b/(1-b)) ) }	# Turn methylation beta values to M values
 
 props_expt = read.csv("CellPropsFACS.txt", sep="\t", head=F)
-BetaVal = read.table( "methylation_beta_values_001.txt", header = T, sep = '\t', quote='' )
+BetaVal = read.table( "methylation_beta_values_001.txt", header=T, sep='\t', quote='' )
 error_sites = read.table("error_sites.txt")
-BetaVal = as.matrix( BetaVal )
-colnames(BetaVal) <- substr(colnames(BetaVal), start = 2 , stop = length(colnames(BetaVal)) )
+BetaVal = as.matrix(BetaVal)
+colnames(BetaVal) <- substr(colnames(BetaVal), start=2 , stop=length(colnames(BetaVal)) )
 Mv = b2m(BetaVal)
 
 N = dim(BetaVal)[1]
 m = dim(BetaVal)[2]
-
 # Cell Type indexes:
 i_n   =  c(1,10,19,28,37,45,54,63)
 i_4   =  c(2,11,20,29,38,46,55,64)
@@ -58,17 +56,14 @@ rownames(props_expt) = colnames(Mv)[i_wb][1:dim(props_expt)[1]]
 PLIM = 0.05
 
 sink("psma_output.txt", append = F)
-
 THE_CTS = 0
 for( CTSes_i in  list( CTS_NEUTRO, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)  ) {
-
 	THE_CTS = THE_CTS + 1								# Cell type index (1,2,3,4,5,6) <=> (N,T4,T8,NK,B,M)
 	CTS_IN_USE = CTSes_i								# Cell type currently under examination	
 	L_WhBlood = Mv[,i_wb]								# WB data (Control)
 	S_WhBlood = Mv[,i_ms]								# WB data (Case)
 	L_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_wb  ])		# CTS reference signal (mean of CTS ref. markers) for controls
 	S_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_ms  ])		# CTS reference signal (mean of CTS ref. markers) for cases
-	
 	for( i in 1:N  ){
 		current_cpg_site_name = rownames(Mv)[i]
 		if( is.element(current_cpg_site_name, error_sites$V1)){next}				# Ignore if this is an invalid (error) site on the chip
@@ -98,13 +93,12 @@ for( CTSes_i in  list( CTS_NEUTRO, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)  ) {
 		dt_case <- data.frame(S_CTSavg, case_i, c("case") )
 		colnames(dt_case) = c("CTS_marker_mean", "GOI_value", "Aff")
 		dt <- rbind( dt, dt_case)
-
 		lmfit <- summary(lm(GOI_value ~ CTS_marker_mean * Aff, data=dt))		# Fit combined case/control linear model
 		aff_by_cts_pVal = lmfit$coefficients[4,4]
 		ctsMarkers_GOI_pVal = lmfit$coefficients[2,4]
 
-    	# WHOLE-BLOOD TESTING:
-     	WB_pVal = t.test( ctrl_i, case_i)
+    		# WHOLE-BLOOD TESTING:
+     		WB_pVal = t.test( ctrl_i, case_i)
 		WB_Ctrl_Methyl_Mv_mean = mean(ctrl_i)
 		WB_Case_Methyl_Mv_mean = mean(case_i)
 		WB_Ctrl_Methyl_Mv_SEM = sd(ctrl_i)/sqrt(length(ctrl_i))
@@ -114,8 +108,6 @@ for( CTSes_i in  list( CTS_NEUTRO, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)  ) {
 			slopes_diff_i, slopes_diff_dist_i, aff_by_cts_pVal, r2_ctrl_i, r2_case_i, WB_pVal$p.value, 
 			WB_Ctrl_Methyl_Mv_mean, WB_Case_Methyl_Mv_mean, WB_Ctrl_Methyl_Mv_SEM, WB_Case_Methyl_Mv_SEM,
 			"\n")
-
 	}
 }
-
 sink()
