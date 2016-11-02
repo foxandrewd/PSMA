@@ -56,23 +56,6 @@ i_wb  =  c(8,17,26,35,44,52,61,70, 72,73,74,75,76,77)
 i_ms  =  c(9,18,27,36,   53,62,71, 78,79,80,81,82,83)
 ind = list( i_n, i_4, i_8, i_k, i_b, i_m, i_wbc, i_wb, i_ms)
 
-
-# The Cell-type - specific Reference markers that identify the different cell types
-# These are strongly demethylated in the cell type for which they are specific (M < ~-2);
-# and they are strongly methylated (M > ~2) in the other cell types (exception is CD4 & CD8 T cells which
-# could not be separated from each other given the data we had. However, these T cell subsets can be
-# well-separated from each of the 4 other non-T-cell types, and the markers shown do just that:
-
-CTS_NEUTRO = c('cg13618969', 'cg01699630', 'cg06270401', 'cg25600606', 'cg11070172', 'cg03146219' )
-CTS_CD4T = c('cg07545925', 'cg16452866', 'cg05160234', 'cg07015803', 'cg15880738', 'cg10111816' )
-CTS_CD8T = c('cg24841244', 'cg07728874', 'cg05160234', 'cg13750061', 'cg24612198', 'cg10111816')
-CTS_CD3T = c('cg24841244', 'cg07728874', 'cg05160234', 'cg13750061', 'cg24612198', 'cg10111816')
-CTS_NK = c('cg23015664', 'cg19915997', 'cg27274718', 'cg25386954', 'cg26275360')
-CTS_BCELL = c('cg11661493', 'cg19260718', 'cg02087075', 'cg21743182', 'cg03402235', 'cg22907103' )
-CTS_MONO = c('cg23244761','cg10480329','cg02244028','cg18066690','cg04468741','cg04045544')
-CTS_IN_USE = NA
-CTSes_ALL = list( CTS_NEUTRO, CTS_CD4T, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)
-
 dataIndex <- function( ctrlSampleNum, ct_num){ return(  (ctrlSampleNum-1)*9 + ct_num ); }
 dataIndexVal <- function( ctrlSampleNum, ct_num, vals){ return(  vals[(ctrlSampleNum-1)*9 + ct_num] ); }
 cpg_data = as.matrix( read.csv("houseman_refSites_n1826.txt", sep="\t", header=F) )
