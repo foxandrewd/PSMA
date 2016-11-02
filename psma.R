@@ -62,38 +62,38 @@ for( CTSes_i in  list( CTS_NEUTRO, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)  ) {
 	CTS_IN_USE = CTSes_i								# Cell type currently under examination	
 	L_WhBlood = Mv[,i_wb]								# WB data (Control)
 	S_WhBlood = Mv[,i_ms]								# WB data (Case)
-	L_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_wb  ])		# CTS reference signal (mean of CTS ref. markers) for controls
-	S_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_ms  ])		# CTS reference signal (mean of CTS ref. markers) for cases
+	L_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_wb  ])					# CTS reference signal (mean of CTS ref. markers) for controls
+	S_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_ms  ])					# CTS reference signal (mean of CTS ref. markers) for cases
 	for( i in 1:N  ){
 		current_cpg_site_name = rownames(Mv)[i]
-		if( is.element(current_cpg_site_name, error_sites$V1)){next}				# Ignore if this is an invalid (error) site on the chip
-		ctrl_i = L_WhBlood[i,]													# WB data for this CpG site (Controls)
-		case_i = S_WhBlood[i,]													# WB data for this CpG site (Cases)
-		r2_ctrl_i = cor( ctrl_i , L_CTSavg)^2									# Pearson R^2 for control vs. Celltype Reference signal
-		r2_case_i = cor( case_i , S_CTSavg)^2									# Pearson R^2 for case vs. Celltype Reference signal
-		L_lm = lm(ctrl_i ~ L_CTSavg)											# Linear model (LM) of this CpG vs. Celltype Reference signal (Controls)
-		S_lm = lm(case_i ~ S_CTSavg)											# Linear model (LM) of this CpG vs. Celltype Reference signal (Cases)
-		L_intercept = L_lm$coefficients[1]										# Control LM intercept
-		L_slope = L_lm$coefficients[2]											# Control LM slope (CTS methylation level for this CpG in the current cell type)
-		S_intercept = S_lm$coefficients[1]										# Case LM intercept
-		S_slope = S_lm$coefficients[2]											# Case LM slope (CTS methylation level for this CpG in the current cell type)
-		L_stderr = summary(L_lm)$coefficients["L_CTSavg","Std. Error"]			# Std error of slope (methylation level) estimate (Controls)
-		S_stderr = summary(S_lm)$coefficients["S_CTSavg","Std. Error"]			# Std error of slope (methylation level) estimate (Cases)
+		if( is.element(current_cpg_site_name, error_sites$V1)){next}		# Ignore if this is an invalid (error) site on the chip
+		ctrl_i = L_WhBlood[i,]							# WB data for this CpG site (Controls)
+		case_i = S_WhBlood[i,]							# WB data for this CpG site (Cases)
+		r2_ctrl_i = cor( ctrl_i , L_CTSavg)^2					# Pearson R^2 for control vs. Celltype Reference signal
+		r2_case_i = cor( case_i , S_CTSavg)^2					# Pearson R^2 for case vs. Celltype Reference signal
+		L_lm = lm(ctrl_i ~ L_CTSavg)						# Linear model (LM) of this CpG vs. Celltype Ref. signal (Ctrls)
+		S_lm = lm(case_i ~ S_CTSavg)						# Linear model (LM) of this CpG vs. Celltype Ref. signal (Cases)
+		L_intercept = L_lm$coefficients[1]					# Ctrl LM intercept
+		L_slope = L_lm$coefficients[2]						# Ctrl LM slope (CTS methyl. level for this CpG in curr. cell type)
+		S_intercept = S_lm$coefficients[1]					# Case LM intercept
+		S_slope = S_lm$coefficients[2]						# Case LM slope (CTS methyl. level for this CpG in curr. cell type)
+		L_stderr = summary(L_lm)$coefficients["L_CTSavg","Std. Error"]		# Std error of slope (methylation level) estimate (Controls)
+		S_stderr = summary(S_lm)$coefficients["S_CTSavg","Std. Error"]		# Std error of slope (methylation level) estimate (Cases)
 		L_slope_range = c(L_slope-1.96*L_stderr, L_slope+1.96*L_stderr)
 		S_slope_range = c(S_slope-1.96*S_stderr, S_slope+1.96*S_stderr)
-		slopes_diff_i = abs( L_slope / S_slope)									# Ratio of case to control methylation
+		slopes_diff_i = abs( L_slope / S_slope)					# Ratio of case to control methylation
 		slopes_diff_dist_i = abs(S_slope - L_slope)
 		L_Fstat = summary(L_lm)$fstatistic
 		S_Fstat = summary(S_lm)$fstatistic
 		L_Fpval_i = pf( L_Fstat[1], L_Fstat[2], L_Fstat[3], lower.tail=FALSE)	# P-value of goodness-of-fit of the linear model (Controls)
 		S_Fpval_i = pf( S_Fstat[1], S_Fstat[2], S_Fstat[3], lower.tail=FALSE)	# P-value of goodness-of-fit of the linear model (Cases)
 
-		dt <- data.frame(L_CTSavg, ctrl_i, c("ctrl") )							# Contruct table of CTS ref signal, CpG site signal, and whether the sample is a case or control
+		dt <- data.frame(L_CTSavg, ctrl_i, c("ctrl") )				# Make table of CTS ref signal, CpG signal + case or control status
 		colnames(dt) = c("CTS_marker_mean", "GOI_value", "Aff")
 		dt_case <- data.frame(S_CTSavg, case_i, c("case") )
 		colnames(dt_case) = c("CTS_marker_mean", "GOI_value", "Aff")
 		dt <- rbind( dt, dt_case)
-		lmfit <- summary(lm(GOI_value ~ CTS_marker_mean * Aff, data=dt))		# Fit combined case/control linear model
+		lmfit <- summary(lm(GOI_value ~ CTS_marker_mean * Aff, data=dt))	# Fit combined case/control linear model
 		aff_by_cts_pVal = lmfit$coefficients[4,4]
 		ctsMarkers_GOI_pVal = lmfit$coefficients[2,4]
 
