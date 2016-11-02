@@ -59,30 +59,29 @@ rownames(props_expt) = colnames(Mv)[i_wb][1:dim(props_expt)[1]]
 
 THE_CTS = 0
 for( CTSes_i in  CTSes_ALL  ) {
-	THE_CTS = THE_CTS + 1								# Cell type index (1,2,3,4,5,6) <=> (N,T4,T8,NK,B,M)
-	CTS_IN_USE = CTSes_i								# Cell type currently under examination	
-	L_WhBlood = Mv[,i_wb]								# WB data (Control)
-	S_WhBlood = Mv[,i_ms]								# WB data (Case)
-	L_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_wb  ])		# CTS reference signal (mean of CTS ref. markers) for controls
-	S_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_ms  ])		# CTS reference signal (mean of CTS ref. markers) for cases
+	THE_CTS = THE_CTS + 1							# Cell type index (1,2,3,4,5,6) <=> (N,T4,T8,NK,B,M)
+	CTS_IN_USE = CTSes_i							# Cell type currently under examination	
+	L_WhBlood = Mv[,i_wb]							# WB data (Control)
+	S_WhBlood = Mv[,i_ms]							# WB data (Case)
+	L_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_wb  ])				# CTS reference signal (mean of CTS ref. markers) for controls
+	S_CTSavg =  colMeans( Mv[ CTS_IN_USE , i_ms  ])				# CTS reference signal (mean of CTS ref. markers) for cases
 	data = Mv[CTSes_i , i_wb[c(1:linear_loocv_n)] ]
 	data = colMeans( data )
 	LOO_cts = c() ;	LOO_prop = c() ; LOO_pred = c()
 	all_intercepts = c() ; all_slopes = c()
 	all_full_int = c() ; all_full_slope = c() ;	all_full_pred = c() ;
 	for( LOO in c(1:8) ){
-		the_rest_data = data[ -LOO ]
-		the_rest_prop = props_expt[ -LOO, THE_CTS]
+		the_rest_data = data[ -LOO ]					# The input data with the current LOO sample left out
+		the_rest_prop = props_expt[ -LOO, THE_CTS]			# The output data with the current LOO sample left out 
 		the_all_data = data[]
 		the_all_prop = props_expt[ , THE_CTS]
-		the_LOO_cts_data = data[ LOO ]					# CTS 'REF' methyl for LOO sample
-		the_LOO_prop_expt = props_expt[LOO, THE_CTS]	# CTS true proportion of LOO sample
-		the_LOO_prop_actual_true_value = props_expt[LOO , THE_CTS]
-		#### Build the LOO linear model
-		curr_LM = lm( the_rest_prop ~ the_rest_data)
+		the_LOO_cts_data = data[ LOO ]					# CTS 'REF' methyl for LOO sample (input value)
+		the_LOO_prop_expt = props_expt[LOO, THE_CTS]			# CTS true proportion of LOO sample
+		the_LOO_prop_actual_true_value = props_expt[LOO , THE_CTS]	# Get the Truth output value for current LOO sample 
+		curr_LM = lm( the_rest_prop ~ the_rest_data)			# Build the LOO Linear Model
 		curr_LM_intercept = coef(curr_LM)[1]
-		curr_LM_slope = coef(curr_LM)[2]
-		the_LOO_prop_prediction = curr_LM_intercept + curr_LM_slope*the_LOO_cts_data
+		curr_LM_slope = coef(curr_LM)[2]				
+		the_LOO_prop_prediction = curr_LM_intercept + curr_LM_slope*the_LOO_cts_data	# Predict using the LOO linear model
 		LOO_cts = c(LOO_cts, the_LOO_cts_data)
 		LOO_prop = c(LOO_prop, the_LOO_prop_expt)
 		LOO_pred = c( LOO_pred, the_LOO_prop_prediction)
@@ -96,16 +95,13 @@ for( CTSes_i in  CTSes_ALL  ) {
 		all_full_slope = c(all_full_slope, curr_fulldata_LM_slope)
 		all_full_pred = c(all_full_pred, curr_fulldata_pred)
 	}
-	
 	results = data.frame( LOO_cts=LOO_cts, LOO_prop=LOO_prop, LOO_pred=LOO_pred, LOO_slope=all_slopes, 
 						  LOO_intercept=all_intercepts, FULL_pred=all_full_pred, FULL_slope=all_full_slope,
 						  FULL_intercept=all_full_int)
-	
 	expected_intercept = mean(results$LOO_cts + results$LOO_pred)
 	results$LOO_pred2 = expected_intercept - results$LOO_cts
 	res_pred = cbind( res_pred,  results$LOO_pred )
 	res_pred2 = cbind( res_pred2,  results$LOO_pred2 )
-
 }
 colnames(res_pred) = c('Neut', 'CD4T', 'CD8T', 'NKcell', 'Bcell', 'Mono')
 rownames(res_pred) = colnames(Mv)[i_wb][1:dim(props_expt)[1]]
