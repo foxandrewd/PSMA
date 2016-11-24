@@ -32,8 +32,8 @@ i_k   =  c(4,13,22,31,40,48,57,66)
 i_b   =  c(5,14,23,32,41,49,58,67)
 i_m   =  c(6,15,24,33,42,50,59,68)
 i_wbc =  c(7,16,25,34,43,51,60,69)
-i_wb  =  c(8,17,26,35,44,52,61,70, 72,73,74,75,76,77)
-i_ms  =  c(9,18,27,36,   53,62,71, 78,79,80,81,82,83)
+i_wb  =  c(8,17,26,35,44,52,61,70,72,73,74,75,76,77)
+i_ms  =  c(9,18,27,36,   53,62,71,78,79,80,81,82,83)		# index 45 missing: failed bisulphite conversion
 
 # The Cell-type - specific Reference markers that identify the different cell types
 # These are strongly demethylated in the cell type for which they are specific (M < ~-2);
@@ -42,14 +42,10 @@ i_ms  =  c(9,18,27,36,   53,62,71, 78,79,80,81,82,83)
 # well-separated from each of the 4 other non-T-cell types, and the markers shown do just that:
 
 CTS_NEUTRO = c('cg13618969', 'cg01699630', 'cg06270401', 'cg25600606', 'cg11070172', 'cg03146219' )
-CTS_CD4T = c('cg07545925', 'cg16452866', 'cg05160234', 'cg07015803', 'cg15880738', 'cg10111816' )
-CTS_CD8T = c('cg24841244', 'cg07728874', 'cg05160234', 'cg13750061', 'cg24612198', 'cg10111816')
-CTS_CD3T = c('cg24841244', 'cg07728874', 'cg05160234', 'cg13750061', 'cg24612198', 'cg10111816')
+CTS_TCELL = c('cg24841244', 'cg07728874', 'cg05160234', 'cg13750061', 'cg24612198', 'cg10111816')
 CTS_NK = c('cg23015664', 'cg19915997', 'cg27274718', 'cg25386954', 'cg26275360')
 CTS_BCELL = c('cg11661493', 'cg19260718', 'cg02087075', 'cg21743182', 'cg03402235', 'cg22907103' )
 CTS_MONO = c('cg23244761','cg10480329','cg02244028','cg18066690','cg04468741','cg04045544')
-CTS_IN_USE = NA
-CTSes_ALL = list( CTS_NEUTRO, CTS_CD4T, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)
 
 colnames(props_expt) = c("NT", "T4", "T8", "NK", "BC", "MO")
 rownames(props_expt) = colnames(Mv)[i_wb][1:dim(props_expt)[1]]
@@ -57,7 +53,7 @@ PLIM = 0.05
 
 sink("psma_output.txt", append = F)
 THE_CTS = 0
-for( CTSes_i in  list( CTS_NEUTRO, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)  ) {
+for( CTSes_i in  list( CTS_NEUTRO, CTS_TCELL, CTS_NK, CTS_BCELL, CTS_MONO)  ) {
 	THE_CTS = THE_CTS + 1								# Cell type index (1,2,3,4,5,6) <=> (N,T4,T8,NK,B,M)
 	CTS_IN_USE = CTSes_i								# Cell type currently under examination	
 	L_WhBlood = Mv[,i_wb]								# WB data (Control)
@@ -104,10 +100,12 @@ for( CTSes_i in  list( CTS_NEUTRO, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)  ) {
 		WB_Ctrl_Methyl_Mv_SEM = sd(ctrl_i)/sqrt(length(ctrl_i))
 		WB_Case_Methyl_Mv_SEM = sd(case_i)/sqrt(length(case_i))
 		
-		cat( rownames(Mv)[i], i, THE_CTS, L_slope, S_slope, L_stderr, S_stderr, L_Fpval_i, S_Fpval_i,
-			slopes_diff_i, slopes_diff_dist_i, aff_by_cts_pVal, r2_ctrl_i, r2_case_i, WB_pVal$p.value, 
-			WB_Ctrl_Methyl_Mv_mean, WB_Case_Methyl_Mv_mean, WB_Ctrl_Methyl_Mv_SEM, WB_Case_Methyl_Mv_SEM,
-			"\n")
+		if( L_Fpval_i < 0.01 & S_Fpval_i < 0.01){	# Celltype-specifically methylated in cases and controls
+			cat( rownames(Mv)[i], i, THE_CTS, L_slope, S_slope, L_stderr, S_stderr, L_Fpval_i, S_Fpval_i,
+				slopes_diff_i, slopes_diff_dist_i, aff_by_cts_pVal, r2_ctrl_i, r2_case_i, WB_pVal$p.value, 
+				WB_Ctrl_Methyl_Mv_mean, WB_Case_Methyl_Mv_mean, WB_Ctrl_Methyl_Mv_SEM, WB_Case_Methyl_Mv_SEM,
+				"\n")
+		}
 	}
 }
 sink()
