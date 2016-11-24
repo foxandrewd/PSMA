@@ -44,14 +44,11 @@ i_ms  =  c(9,18,27,36,   53,62,71, 78,79,80,81,82,83)
 # well-separated from each of the 4 other non-T-cell types, and the markers shown do just that:
 
 CTS_NEUTRO = c('cg13618969', 'cg01699630', 'cg06270401', 'cg25600606', 'cg11070172', 'cg03146219' )
-CTS_CD4T = c('cg07545925', 'cg16452866', 'cg05160234', 'cg07015803', 'cg15880738', 'cg10111816' )
-CTS_CD8T = c('cg24841244', 'cg07728874', 'cg05160234', 'cg13750061', 'cg24612198', 'cg10111816')
-CTS_CD3T = c('cg24841244', 'cg07728874', 'cg05160234', 'cg13750061', 'cg24612198', 'cg10111816')
+CTS_TCELL = c('cg24841244', 'cg07728874', 'cg05160234', 'cg13750061', 'cg24612198', 'cg10111816')
 CTS_NK = c('cg23015664', 'cg19915997', 'cg27274718', 'cg25386954', 'cg26275360')
 CTS_BCELL = c('cg11661493', 'cg19260718', 'cg02087075', 'cg21743182', 'cg03402235', 'cg22907103' )
 CTS_MONO = c('cg23244761','cg10480329','cg02244028','cg18066690','cg04468741','cg04045544')
-CTS_IN_USE = NA
-CTSes_ALL = list( CTS_NEUTRO, CTS_CD4T, CTS_CD8T, CTS_NK, CTS_BCELL, CTS_MONO)
+CTSes_ALL = list( CTS_NEUTRO, CTS_TCELL, CTS_TCELL, CTS_NK, CTS_BCELL, CTS_MONO)
 
 res_pred = c(); res_pred2 = c();
 colnames(props_expt) = c("NT", "T4", "T8", "NK", "BC", "MO")
